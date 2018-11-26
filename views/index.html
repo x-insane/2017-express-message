@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>留言板 - 梦的天空之城</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+	<link href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+	<link rel="stylesheet" href="/css/main.css" />
+</head>
+<body>
+	<header class="header">
+		<div class="container">
+			<h2 class="row">梦的天空之城 - 留言板</h2>
+		</div>
+	</header>
+	<div id="app" class="container main">
+		<message-frame>
+			<message slot="body" v-for="item in msgs" :data="item" :key="item.id"></message>
+			<ul slot="pagination" class="pagination" v-if="pages > 1">
+				<li v-for="i in pages" :class="{active:i==page}">
+					<a href @click.prevent="page=i">{{i}}</a>
+				</li>
+			</ul>
+		</message-frame>
+		<div class="leave-message-frame">
+			<div v-if="!user.loaded">正在加载...</div>
+			<leave-message v-else-if="user.islogin" :user="user"></leave-message>
+			<login-frame v-else></login-frame>
+		</div>
+	</div>
+	<footer style="height: 50px;"></footer>
+	<script src="//cdn.bootcss.com/jquery/3.2.0/jquery.min.js"></script>
+	<script src="//cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<!-- <script src="//unpkg.com/vue/dist/vue.min.js"></script> -->
+	<script src="/js/vue.js"></script>
+	<script type="text/x-template" id="message-frame-template">
+		<div id="message-frame">
+			<div id="content">
+				<slot name="body">还没有留言哦，快来抢沙发吧。</slot>
+			</div>
+			<slot name="pagination"></slot>
+		</div>
+	</script>
+	<script type="text/x-template" id="message-template">
+		<div class="row message">
+			<div class="message-avatar"
+				:style="{backgroundImage: 'url(' + (data.useravatar ?
+					data.useravatar : '/img/avatar.png') + ')'}">
+				<span class="message-id">{{data.id}}楼</span>
+			</div>
+			<div class="message-body">
+				<header>
+					<span class="message-username">{{data.username}}</span>
+					<span class="message-time">{{data.time}}</span>
+				</header>
+				<div class="message-content" v-if="!modifying">{{data.content}}</div>
+				<div class="message-modifying" v-if="modifying">
+					<textarea
+						:style="{height:this.scrollHeight+'px'}"
+						v-model="content"></textarea>
+				</div>
+				<div class="message-operate">
+					<a href="javascript:void(0)"
+						@click="modifying=true"
+						v-if="data.canModify">修改</a>
+					<a href="javascript:void(0)"
+						@click="deleteMessage"
+						v-if="data.canDelete">删除</a>
+				</div>
+				<div class="message-comment">
+				</div>
+			</div>
+		</div>
+	</script>
+	<script type="text/x-template" id="leave-message-template">
+		<form class="form-horizontal" role="form" onsubmit="return false">
+			<div class="user-info">
+				<div class="user-avatar" 
+					:style="{backgroundImage: 'url(' + (user.avatar ?
+						user.avatar : '/img/avatar.png') + ')'}">
+				</div>
+				<div class="user-meta">{{user.name}}</div>
+			</div>
+			<textarea class="message-textarea"
+				:disabled="disabled"
+				v-model="content"
+				:rows="rows"
+				style="width: 100%"
+				placeholder="在想啥呢^_^"></textarea>
+			<button :disabled="disabled" type="submit"
+				class="btn btn-default pull-right"
+				@click="submit">{{buttonTip}}</button>
+		</form>
+	</script>
+	<script type="text/x-template" id="login-frame-template">
+		<form class="form-horizontal" role="form" onsubmit="return false">
+			<div class="form-group">
+				<label for="account" class="col-xs-2 control-label">账号</label>
+				<div class="col-xs-9">
+					<input v-model="account" type="text" class="form-control" id="account" placeholder="请输入用户名或邮箱">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="passwd" class="col-xs-2 control-label">密码</label>
+				<div class="col-xs-9">
+					<input v-model="passwd" type="password" class="form-control" id="passwd" placeholder="请输入密码">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-2 control-label"></label>
+				<div class="col-xs-9">
+					<button type="submit" class="form-control btn btn-default" @click="submit">登录</button>
+				</div>
+			</div>
+		</form>
+	</script>
+	<script src="/js/index.js"></script>
+</body>
+</html>

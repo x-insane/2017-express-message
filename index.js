@@ -26,11 +26,12 @@ app.use(express.static(__dirname + '/public'));
 // 	extname: '.hbs'
 // }));
 // app.set('view engine', '.hbs');
-app.set('views', __dirname + '/views');
-app.set('view engine', 'jsx');
-app.engine('jsx', require('express-react-views').createEngine({
-	beautify: true
-}));
+
+// app.set('views', __dirname + '/views');
+// app.set('view engine', 'jsx');
+// app.engine('jsx', require('express-react-views').createEngine({
+// 	beautify: true
+// }));
 
 var urlencodedParser = bodyParser.urlencoded({
 	extended: true
@@ -45,16 +46,21 @@ app.use(require('express-session')({
 	saveUninitialized : true
 }));
 
-app.use('/', require('./router/user.js'));
-app.use('/', require('./router/message.js'));
+app.use('/$', function(req, res) {
+	res.sendFile('index.html', {
+		root : __dirname + '/views/'
+	});
+});
+app.use('/api', require('./router/user.js'));
+app.use('/api', require('./router/message.js'));
 
 app.use(function(req, res, next) {
-	res.status(404).render('error/404');
+	res.status(404).send(); // render('error/404');
 });
 
 app.use(function(err, req, res, next) {
 	console.error(err.stack);
-	res.status(500).render('error/500');
+	res.status(500).send(); // render('error/500');
 });
 
 app.listen(cfg.server.port, function() {

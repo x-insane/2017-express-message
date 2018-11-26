@@ -4,9 +4,29 @@ var cfg = require('./../config.js');
 var app = require('express').Router();
 var pool = require('./../lib/sql.js').pool;
 
+app.get('/get-user-info', function(req, res) {
+	if (req.session.user) {
+		res.json(req.session.user);
+	}
+	else {
+		res.json({
+			islogin : false
+		});
+	}
+})
+
+app.all('/logout', function(req, res) {
+	delete req.session.user;
+	res.json({
+		error : 0
+	})
+})
+
 app.get('/login', function(req, res) {
-	res.render('user/login');
-});
+	res.sendFile('login.html', {
+		root : __dirname + '/../views/'
+	});
+})
 
 app.get('/register', function(req, res) {
 	res.render('user/register');
@@ -21,6 +41,8 @@ app.post('/login', function(req, res) {
 			if (error)
 				throw error;
 			if(results.length && results[0].passwd == req.body.passwd) {
+				delete results[0].passwd;
+				results[0].islogin = true;
 				req.session.user = results[0];
 				res.json({
 					error : 0,
